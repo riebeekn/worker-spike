@@ -14,7 +14,6 @@ def run!
     # keep looking for more jobs if a job was just processed
     # otherwise sleep for a bit
     pause_loop unless job_found
-    # stop = true # kill after a single loop
   end
 end
 
