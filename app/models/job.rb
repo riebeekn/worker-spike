@@ -6,18 +6,10 @@ class Job
   field :finished, type: Boolean
   field :failed, type: Boolean
   field :message, type: String
-  field :engine_finished, type: Boolean
   field :engine_worker, type: String
-  field :num_times_engine_processed, type: Integer
-  field :drive_train_finished, type: Boolean
   field :drive_train_worker, type: String
-  field :num_times_drive_train_processed, type: Integer
-  field :body_finished, type: Boolean
   field :body_worker, type: String
-  field :num_times_body_processed, type: Integer
-  field :assembly_finished, type: Boolean
   field :assembly_worker, type: String
-  field :num_times_assembled, type: Integer
   field :start, type: Time
   field :stop, type: Time
 
