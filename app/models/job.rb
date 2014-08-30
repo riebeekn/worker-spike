@@ -20,7 +20,8 @@ class Job
     job = Job.where(:engine_status => 'Done', 
                     :drive_train_status => 'Done',
                     :body_status => 'Done',
-                    :assembly_status.ne => 'Done').
+                    :assembly_status.ne => 'Done',
+                    :assembly_worker => '').
             order_by([:created_at, :asc]).
             find_and_modify(
             {
@@ -31,6 +32,7 @@ class Job
             })
 
     if !job.nil?
+      job.reload
       return job
     end
 
@@ -51,8 +53,6 @@ class Job
       return job
     end
 
-    # assembling is not working... something wrong with the status
-    # maybe need to do the below with find and modify as well
     unless job.nil?
       if job.engine_worker == ''
         job.engine_worker = "worker #{Process.pid}"
@@ -76,7 +76,6 @@ class Job
     end
 
     if (job.nil?)
-      Logging.info "job is nil"
       return nil
     end
   end

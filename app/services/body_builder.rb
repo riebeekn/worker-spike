@@ -2,7 +2,7 @@ require './app/services/logging'
 
 class BodyBuilder
 	def self.build(job)
-		Logging.info "building body..."
+		Logging.info "\t\tbuilding body..."
 		sleep(4)
 	end
 end

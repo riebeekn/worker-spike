@@ -2,7 +2,7 @@ require './app/services/logging'
 
 class Assembler
 	def self.assemble(job)
-		Logging.info "assembling..."
+		Logging.info "\t\tassembling..."
 		sleep(7)
 	end
 end

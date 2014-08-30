@@ -26,6 +26,11 @@ class Controller
   private 
   	def self.process(job)
       Logging.info "Processing job #{job._id}"
+      # Logging.info "\tStatus: #{job.status}"
+      # Logging.info "\tEngine status: #{job.engine_status}"
+      # Logging.info "\tDT status: #{job.drive_train_status}"
+      # Logging.info "\tBody status: #{job.body_status}"
+      # Logging.info "\tAssembly status: #{job.assembly_status}"
 
       if (job.engine_status == "Starting")
         job.engine_status = "Processing"
