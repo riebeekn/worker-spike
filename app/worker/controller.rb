@@ -55,8 +55,8 @@ class Controller
         job.save!
         Assembler.assemble(job)
         job.assembly_status = "Done"
-        job.status = "Done"
         job.save!
+        job.finish_processing
       end
     end
 end

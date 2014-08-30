@@ -45,8 +45,7 @@ class Job
             find_and_modify(
             {
               "$set" => {
-                status: 'Assigning Worker',
-                start: Job.utc_now #note won't work, resets start each time
+                status: 'Assigning Worker'
               }
             })
     else
@@ -55,6 +54,7 @@ class Job
 
     unless job.nil?
       if job.engine_worker == ''
+        job.start = Job.utc_now
         job.engine_worker = "worker #{Process.pid}"
         job.engine_status = "Starting"
         job.status = "Processing"
