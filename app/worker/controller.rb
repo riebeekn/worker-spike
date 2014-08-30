@@ -27,55 +27,31 @@ class Controller
   	def self.process(job)
       Logging.info "Processing job #{job._id}"
 
-			job.engine_worker = "worker #{Process.pid}"
-      EngineBuilder.build(job)
-      job.engine_finished = true
-      job.drive_train_worker = "worker #{Process.pid}"
-      DriveTrainBuilder.build(job)
-      job.drive_train_finished = true
-      job.body_worker = "worker #{Process.pid}"
-      BodyBuilder.build(job)
-      job.body_finished = true
-      job.assembly_worker = "worker #{Process.pid}"
-      Assembler.assemble(job)
-      job.assembly_finished = true
-      job.finish_processing
+      if (job.engine_status == "Starting")
+        job.engine_status = "Processing"
+        job.save!
+        EngineBuilder.build(job)
+        job.engine_status = "Done"
+        job.save!
+      elsif (job.drive_train_status == "Starting")
+        job.drive_train_status = "Processing"
+        job.save!
+        DriveTrainBuilder.build(job)
+        job.drive_train_status = "Done"
+        job.save!
+      elsif (job.body_status == "Starting")
+        job.body_status = "Processing"
+        job.save!
+        BodyBuilder.build(job)
+        job.body_status = "Done"
+        job.save!
+      elsif (job.assembly_status == "Starting")
+        job.assembly_status = "Processing"
+        job.save!
+        Assembler.assemble(job)
+        job.assembly_status = "Done"
+        job.status = "Done"
+        job.save!
+      end
     end
-
-    # def self.process(job)
-    #   Logging.info "Processing job #{job._id}"
-
-    #   if (!job.engine_finished && job.engine_worker == nil)
-    #     job.engine_worker = "worker #{Process.pid}"
-    #     job.save!
-    #     EngineBuilder.build(job)
-    #     job.engine_finished = true
-    #     job.save    
-    #   elsif (!job.drive_train_finished && job.drive_train_worker == nil)
-    #     job.drive_train_worker = "worker #{Process.pid}"
-    #     job.save!
-    #     DriveTrainBuilder.build(job)
-    #     job.drive_train_finished = true
-    #     job.save!
-    #   elsif (!job.body_finished && job.body_worker == nil)
-    #     job.body_worker = "worker #{Process.pid}"
-    #     job.save!
-    #     BodyBuilder.build(job)
-    #     job.body_finished = true
-    #     job.save!
-    #   end
-
-    #   if (job.body_finished && job.drive_train_finished && job.engine_finished &&
-    #      !job.assembly_finished && job.assembly_worker == nil)
-    #     job.assembly_worker = "worker #{Process.pid}"
-    #     job.save!
-    #     Assembler.assemble(job)
-    #     job.assembly_finished = true
-    #     job.save!
-    #   end
-
-    #   if (job.assembly_finished)
-    #     job.finish_processing
-    #   end
-    # end
 end

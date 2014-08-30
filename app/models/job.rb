@@ -3,42 +3,93 @@ require 'mongoid'
 class Job
   include Mongoid::Document
   include Mongoid::Timestamps
-  field :finished, type: Boolean
-  field :failed, type: Boolean
+  field :status, type: String
   field :message, type: String
   field :engine_worker, type: String
+  field :engine_status, type: String
   field :drive_train_worker, type: String
+  field :drive_train_status, type: String
   field :body_worker, type: String
+  field :body_status, type: String
   field :assembly_worker, type: String
+  field :assembly_status, type: String
   field :start, type: Time
   field :stop, type: Time
 
   def self.get_next_job_to_process
-    job = Job.where(:finished => false).order_by([:created_at, :asc]).first
-    # job = Job.or(
-    #   {engine_worker: nil}, 
-    #   {drive_train_worker: nil},
-    #   {body_worker: nil},
-    #   {assembly_worker: nil}).
-    #   order_by([:created_at, :asc]).first
+    job = Job.where(:engine_status => 'Done', 
+                    :drive_train_status => 'Done',
+                    :body_status => 'Done',
+                    :assembly_status.ne => 'Done').
+            order_by([:created_at, :asc]).
+            find_and_modify(
+            {
+              "$set" => {
+                assembly_worker: "worker #{Process.pid}",
+                assembly_status: "Starting"
+              }
+            })
 
-      # this wrong will be updated for each stage of the job
-    # unless job.nil?
-    #   job.start = Job.utc_now
-    #   job.save!
-    #   job
-    # end
+    if !job.nil?
+      return job
+    end
+
+    if job.nil?
+      # job = Job.where(:status.ne => 'Assigning Worker').or({engine_status: 'Pending'}, 
+      job = Job.or({:engine_status => 'Pending'},
+                  {:drive_train_status => 'Pending'}, 
+                  {:body_status => 'Pending'}).
+            order_by([:created_at, :asc]).
+            find_and_modify(
+            {
+              "$set" => {
+                status: 'Assigning Worker',
+                start: Job.utc_now #note won't work, resets start each time
+              }
+            })
+    else
+      return job
+    end
+
+    # assembling is not working... something wrong with the status
+    # maybe need to do the below with find and modify as well
+    unless job.nil?
+      if job.engine_worker == ''
+        job.engine_worker = "worker #{Process.pid}"
+        job.engine_status = "Starting"
+        job.status = "Processing"
+        job.save!
+        return job
+      elsif job.drive_train_worker == ''
+        job.drive_train_worker = "worker #{Process.pid}"
+        job.drive_train_status = "Starting"
+        job.status = "Processing"
+        job.save!
+        return job
+      elsif job.body_worker == ''
+        job.body_worker = "worker #{Process.pid}"
+        job.body_status = "Starting"
+        job.status = "Processing"
+        job.save!
+        return job
+      end
+    end
+
+    if (job.nil?)
+      Logging.info "job is nil"
+      return nil
+    end
   end
 
-  def stop_processing_due_to_error(message = nil)
-    self.failed = true
+    def stop_processing_due_to_error(message = nil)
+    self.status = "Failed"
     self.stop = Job.utc_now
     self.message = message unless message.nil?
     self.save!
   end
 
   def finish_processing
-    self.finished = true
+    self.status = "Done"
     self.stop = Job.utc_now
     self.save!
   end
