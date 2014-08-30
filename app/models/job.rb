@@ -10,15 +10,16 @@ class Job
   field :stop, type: Time
 
   def self.get_next_job_to_process
-    job = Job.where(:status => 'Pending').order_by([:created_at, :asc]).first
-
-    unless job.nil?
-      job.start = Job.utc_now
-      job.worker = "worker #{Process.pid}"
-      job.status = "Processing"
-      job.save!
-      job
-    end
+    Job.where(:status => 'Pending').
+              order_by([:created_at, :asc]).
+              find_and_modify(
+                {
+                  "$set" => {
+                    start: Job.utc_now,
+                    status: 'Processing',
+                    worker: "worker #{Process.pid}"
+                  }
+                })
   end
 
   def stop_processing_due_to_error(message = nil)
