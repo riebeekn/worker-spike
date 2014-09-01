@@ -4,5 +4,6 @@ class EngineBuilder
 	def self.build(job)
 		Logging.info "\t\tbuilding engine..."
 		sleep(5)
+		job.update_engine
 	end
 end

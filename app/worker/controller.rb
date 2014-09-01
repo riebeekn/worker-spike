@@ -33,29 +33,21 @@ class Controller
       # Logging.info "\tAssembly status: #{job.assembly_status}"
 
       if (job.engine_status == "Starting")
-        job.engine_status = "Processing"
-        job.save!
+        job.set(engine_status: "Processing")
         EngineBuilder.build(job)
-        job.engine_status = "Done"
-        job.save!
+        job.set(engine_status: "Done")
       elsif (job.drive_train_status == "Starting")
-        job.drive_train_status = "Processing"
-        job.save!
+        job.set(drive_train_status: "Processing")
         DriveTrainBuilder.build(job)
-        job.drive_train_status = "Done"
-        job.save!
+        job.set(drive_train_status: "Done")
       elsif (job.body_status == "Starting")
-        job.body_status = "Processing"
-        job.save!
+        job.set(body_status: "Processing")
         BodyBuilder.build(job)
-        job.body_status = "Done"
-        job.save!
+        job.set(body_status: "Done")
       elsif (job.assembly_status == "Starting")
-        job.assembly_status = "Processing"
-        job.save!
+        job.set(assembly_status: "Processing")
         Assembler.assemble(job)
-        job.assembly_status = "Done"
-        job.save!
+        job.set(assembly_status: "Done")
         job.finish_processing
       end
     end

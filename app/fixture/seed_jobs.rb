@@ -5,12 +5,12 @@ require './app/services/database'
 def run!
   Database.load_config
 
-  num_jobs_to_create = 20
+  num_jobs_to_create = 60
   Job.collection.drop
   for i in 1..num_jobs_to_create
     create_job
     if (i < num_jobs_to_create)
-      sleep(5)
+      # sleep(5)
     end
   end
 
